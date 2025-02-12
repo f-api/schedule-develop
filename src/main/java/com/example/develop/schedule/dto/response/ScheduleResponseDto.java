@@ -1,21 +1,22 @@
 package com.example.develop.schedule.dto.response;
 
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter
 public class ScheduleResponseDto {
 
     private final Long id;
+    private final Long userId;
     private final String userName;
     private final String title;
     private final String content;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public ScheduleResponseDto(Long id, String userName, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public ScheduleResponseDto(Long id, Long userId, String userName, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
+        this.userId = userId;
         this.userName = userName;
         this.title = title;
         this.content = content;
