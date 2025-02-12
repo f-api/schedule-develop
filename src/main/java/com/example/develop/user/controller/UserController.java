@@ -1,9 +1,12 @@
 package com.example.develop.user.controller;
 
+import com.example.develop.common.consts.Const;
 import com.example.develop.user.dto.request.UserSaveRequestDto;
 import com.example.develop.user.dto.request.UserUpdateRequestDto;
 import com.example.develop.user.dto.response.UserResponseDto;
 import com.example.develop.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +19,8 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/users")
-    public ResponseEntity<UserResponseDto> save(@RequestBody UserSaveRequestDto dto) {
+    @PostMapping("/users/signup")
+    public ResponseEntity<UserResponseDto> signup(@RequestBody UserSaveRequestDto dto) {
         return ResponseEntity.ok(userService.save(dto));
     }
 
@@ -31,13 +34,19 @@ public class UserController {
         return ResponseEntity.ok(userService.findOne(id));
     }
 
-    @PutMapping("/users/{id}")
-    public ResponseEntity<UserResponseDto> update(@PathVariable Long id, @RequestBody UserUpdateRequestDto dto) {
-        return ResponseEntity.ok(userService.update(id, dto));
+    @PutMapping("/users/me")
+    public ResponseEntity<UserResponseDto> update(
+            @SessionAttribute(name = Const.LOGIN_USER) Long userId,
+            @RequestBody UserUpdateRequestDto dto
+    ) {
+        return ResponseEntity.ok(userService.update(userId, dto));
     }
 
-    @DeleteMapping("/users/{id}")
-    public void delete(@PathVariable Long id) {
-        userService.deleteById(id);
+    @DeleteMapping("/users/me")
+    public void delete(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Long userId = (Long) session.getAttribute("LOGIN_USER");
+        userService.deleteById(userId);
+        session.invalidate();
     }
 }

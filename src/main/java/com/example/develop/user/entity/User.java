@@ -16,6 +16,7 @@ public class User extends BaseEntity {
     private Long id;
 
     private String userName;
+    @Column(unique = true)
     private String email;
     private String password;
 
@@ -23,6 +24,14 @@ public class User extends BaseEntity {
         this.userName = userName;
         this.email = email;
         this.password = password;
+    }
+
+    private User(Long id) {
+        this.id = id;
+    }
+
+    public static User fromUserId(Long id) {
+        return new User(id);
     }
 
     public void update(String userName, String email, String password) {

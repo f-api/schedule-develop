@@ -1,5 +1,6 @@
 package com.example.develop.schedule.controller;
 
+import com.example.develop.common.consts.Const;
 import com.example.develop.schedule.dto.request.ScheduleSaveRequestDto;
 import com.example.develop.schedule.dto.request.ScheduleUpdateRequestDto;
 import com.example.develop.schedule.dto.response.ScheduleResponseDto;
@@ -20,9 +21,10 @@ public class ScheduleController {
 
     @PostMapping("/schedules")
     public ResponseEntity<ScheduleSaveResponseDto> save(
+            @SessionAttribute(name = Const.LOGIN_USER) Long userId,
             @RequestBody ScheduleSaveRequestDto dto
     ) {
-        return ResponseEntity.ok(scheduleService.save(dto));
+        return ResponseEntity.ok(scheduleService.save(userId, dto));
     }
 
     @GetMapping("/schedules")
@@ -37,14 +39,19 @@ public class ScheduleController {
 
     @PutMapping("/schedules/{id}")
     public ResponseEntity<ScheduleUpdateResponseDto> update(
+            @SessionAttribute(name = Const.LOGIN_USER) Long userId,
             @PathVariable Long id,
             @RequestBody ScheduleUpdateRequestDto dto
     ) {
-        return ResponseEntity.ok(scheduleService.update(id, dto));
+        return ResponseEntity.ok(scheduleService.update(id, userId, dto));
     }
 
     @DeleteMapping("/schedules/{id}")
-    public void delete(@PathVariable Long id) {
-        scheduleService.deleteById(id);
+    public ResponseEntity<Void> delete(
+            @SessionAttribute(name = Const.LOGIN_USER) Long userId,
+            @PathVariable Long id
+    ) {
+        scheduleService.deleteById(id, userId);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,5 +1,7 @@
 package com.example.develop.user.service;
 
+import com.example.develop.common.exception.InvalidCredentialException;
+import com.example.develop.user.dto.request.LoginRequestDto;
 import com.example.develop.user.dto.request.UserSaveRequestDto;
 import com.example.develop.user.dto.request.UserUpdateRequestDto;
 import com.example.develop.user.dto.response.UserResponseDto;
@@ -8,6 +10,7 @@ import com.example.develop.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +23,10 @@ public class UserService {
 
     @Transactional
     public UserResponseDto save(UserSaveRequestDto dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("해당 이메일은 이미 사용중입니다.");
+        }
+
         User user = new User(dto.getUserName(), dto.getEmail(), dto.getPassword());
         userRepository.save(user);
         return new UserResponseDto(user.getId(), user.getUserName(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt());
@@ -40,8 +47,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto update(Long id, UserUpdateRequestDto dto) {
-        User user = userRepository.findById(id)
+    public UserResponseDto update(Long userId, UserUpdateRequestDto dto) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
         user.update(dto.getUserName(), dto.getEmail(), dto.getPassword());
         return new UserResponseDto(user.getId(), user.getUserName(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt());
@@ -50,5 +57,15 @@ public class UserService {
     @Transactional
     public void deleteById(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Long handleLogin(LoginRequestDto dto) {
+        User user = userRepository.findByEmail(dto.getEmail()).orElseThrow(
+                () -> new InvalidCredentialException("해당 이메일이 존재하지 않습니다."));
+        if (dto.getPassword() != null && !ObjectUtils.nullSafeEquals(user.getPassword(), dto.getPassword())) {
+            throw new InvalidCredentialException("비밀번호가 일치하지 않습니다.");
+        }
+        return user.getId();
     }
 }
