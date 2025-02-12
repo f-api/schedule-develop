@@ -89,7 +89,7 @@ public class LoginControllerTest {
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()))
                 .andReturn().getRequest().getSession();
 
-        mockMvc.perform(get("/logout").session(session))
+        mockMvc.perform(post("/logout").session(session))
                 .andExpect(status().isOk())
                 .andExpect(content().string("로그아웃 성공"))
                 .andDo(result -> System.out.println(result.getResponse().getContentAsString()));

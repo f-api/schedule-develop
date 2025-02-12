@@ -3,11 +3,13 @@ package com.example.develop.schedule.controller;
 import com.example.develop.common.consts.Const;
 import com.example.develop.schedule.dto.request.ScheduleSaveRequestDto;
 import com.example.develop.schedule.dto.request.ScheduleUpdateRequestDto;
+import com.example.develop.schedule.dto.response.SchedulePageResponseDto;
 import com.example.develop.schedule.dto.response.ScheduleResponseDto;
 import com.example.develop.schedule.dto.response.ScheduleSaveResponseDto;
 import com.example.develop.schedule.dto.response.ScheduleUpdateResponseDto;
 import com.example.develop.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,5 +55,15 @@ public class ScheduleController {
     ) {
         scheduleService.deleteById(id, userId);
         return ResponseEntity.ok().build();
+    }
+
+    // 일정 페이지 API
+    @GetMapping("/schedules/page")
+    public ResponseEntity<Page<SchedulePageResponseDto>> findAllPage(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<SchedulePageResponseDto> result = scheduleService.findAllPage(page, size);
+        return ResponseEntity.ok(result);
     }
 }
